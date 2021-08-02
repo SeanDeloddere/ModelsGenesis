@@ -13,6 +13,7 @@ try:  # SciPy >= 0.19
 except ImportError:
     from scipy.misc import comb
 
+
 def bernstein_poly(i, n, t):
     """
      The Bernstein polynomial of n, i as a function of t
