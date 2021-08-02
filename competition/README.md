@@ -182,7 +182,7 @@ done
 
 ```bash
 cd competition/
-python -W ignore Genesis_nnUNet.py
+python -W ignore Genesis_nnUNet_dataloader.py
 ```
 Your pre-trained nnU-Net will be saved at `./competition/pretrained_weights/genesis_nnunet_luna16_006.model`.
 

@@ -18,9 +18,9 @@ done
 import warnings
 warnings.filterwarnings('ignore')
 import os
-import keras
-print("Keras = {}".format(keras.__version__))
-import tensorflow as tf
+#import keras
+#print("Keras = {}".format(keras.__version__))
+#import tensorflow as tf
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # or any {'0', '1', '2'}
 
 import sys
@@ -125,6 +125,7 @@ config = setup_config(input_rows=options.input_rows,
                      )
 config.display()
 
+# generate based on intensity values
 def infinite_generator_from_one_volume(config, img_array):
     size_x, size_y, size_z = img_array.shape
     if size_z-config.input_deps-config.len_depth-1-config.len_border_z < config.len_border_z:
@@ -161,7 +162,9 @@ def infinite_generator_from_one_volume(config, img_array):
         
         t_img = np.zeros((config.input_rows, config.input_cols, config.input_deps), dtype=float)
         d_img = np.zeros((config.input_rows, config.input_cols, config.input_deps), dtype=float)
-        
+
+        # See which coordinates of the image (and its neighbours) are above the threshold.
+        # A 0 indicates the pixel itself is above, the lower the number the closer a pixel above the threshold.
         for d in range(config.input_deps):
             for i in range(config.input_rows):
                 for j in range(config.input_cols):
@@ -172,11 +175,16 @@ def infinite_generator_from_one_volume(config, img_array):
                             break
                         if k == config.len_depth-1:
                             d_img[i, j, d] = k
-                            
+
+        # Flip it, so that a 1 indicates the pixel is above the threshold,
+        # and a value between 1 and 0 indicates the closeness of a pixel above threshold,
+        # a higher value indicating a closer pixel
         d_img = d_img.astype('float32')
         d_img /= (config.len_depth - 1)
         d_img = 1.0 - d_img
-        
+
+        # Check whether the selected crop window (potential cube) is above the threshold.
+        # The lung is dark, so you don't want too many pixels above the threshold, indicating no lung in the cube.
         if np.sum(d_img) > config.lung_max * config.input_rows * config.input_cols * config.input_deps:
             continue
         

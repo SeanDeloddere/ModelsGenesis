@@ -9,23 +9,28 @@ from utils import *
 from config import models_genesis_config
 from torch import nn
 import torch
+import sys
+
+sys.path.append('/home/sean/nnUNet')
+
 from nnunet.training.learning_rate.poly_lr import poly_lr
 from nnunet.network_architecture.generic_UNet import Generic_UNet
 from nnunet.network_architecture.initialization import InitWeights_He
-from torchsummary import summary
+#from torchsummary import summary
 import random
 import copy
 from scipy.special import comb
-import sys
+
 from torch.optim import lr_scheduler
 from optparse import OptionParser
 
+# save_path = '/home/sean/ModelsGenesis/pretext_results'
 
 print("torch = {}".format(torch.__version__))
 
 seed = 1
 random.seed(seed)
-model_path = "pretrained_weights/"
+model_path = "pretrained_weights/resized64"
 if not os.path.exists(model_path):
     os.makedirs(model_path)
 logs_path = os.path.join(model_path, "Logs")
@@ -36,27 +41,29 @@ config = models_genesis_config()
 config.display()
 
 device=torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+print('='*10+'device'+'='*10)
+print(device)
 
 x_train = []
 for i,fold in enumerate(tqdm(config.train_fold)):
-    s = np.load(os.path.join(config.DATA_DIR, "bat_"+str(config.scale)+"_s_64x64x32_"+str(fold)+".npy"))
+    s = np.load(os.path.join(config.DATA_DIR, "bat_"+str(config.scale)+"_s_192x192x64_"+str(fold)+".npy"))
     x_train.extend(s)
 x_train = np.expand_dims(np.array(x_train), axis=1)
 
 x_valid = []
 for i,fold in enumerate(tqdm(config.valid_fold)):
-    s = np.load(os.path.join(config.DATA_DIR, "bat_"+str(config.scale)+"_s_64x64x32_"+str(fold)+".npy"))
+    s = np.load(os.path.join(config.DATA_DIR, "bat_"+str(config.scale)+"_s_192x192x64_"+str(fold)+".npy"))
     x_valid.extend(s)
 x_valid = np.expand_dims(np.array(x_valid), axis=1)
-print('training_data_shape: ' x_train.shape)
-print('validation_data_shape: ' x_valid.shape)
+print('training_data_shape: ' + str(x_train.shape))
+print('validation_data_shape: ' + str(x_valid.shape))
 
-################### configuration for model
+# ################### configuration for model (MV)
 num_input_channels=1
 base_num_features = 32
-num_classes = 2
-net_num_pool_op_kernel_sizes=[[2, 2, 2],[2, 2, 2],[2, 2, 2],[2, 2, 2],[1, 2, 2]]
-net_conv_kernel_sizes = [[3, 3, 3],[3, 3, 3],[3, 3, 3],[3, 3, 3],[3, 3, 3],[3, 3, 3]]
+num_classes = 3
+net_num_pool_op_kernel_sizes=[[1, 2, 2],[2, 2, 2],[2, 2, 2],[2, 2, 2],[1, 2, 2]]
+net_conv_kernel_sizes = [[1, 3, 3],[3, 3, 3],[3, 3, 3],[3, 3, 3],[3, 3, 3],[3, 3, 3]]
 net_numpool=len(net_num_pool_op_kernel_sizes)
 conv_per_stage = 2
 conv_op = nn.Conv3d
@@ -66,6 +73,23 @@ norm_op_kwargs = {'eps': 1e-5, 'affine': True}
 dropout_op_kwargs = {'p': 0, 'inplace': True}
 net_nonlin = nn.LeakyReLU
 net_nonlin_kwargs = {'negative_slope': 1e-2, 'inplace': True}
+# ##############################
+
+################### configuration for model
+# num_input_channels=1
+# base_num_features = 32
+# num_classes = 2
+# net_num_pool_op_kernel_sizes=[[2, 2, 2],[2, 2, 2],[2, 2, 2],[2, 2, 2],[1, 2, 2]]
+# net_conv_kernel_sizes = [[3, 3, 3],[3, 3, 3],[3, 3, 3],[3, 3, 3],[3, 3, 3],[3, 3, 3]]
+# net_numpool=len(net_num_pool_op_kernel_sizes)
+# conv_per_stage = 2
+# conv_op = nn.Conv3d
+# dropout_op = nn.Dropout3d
+# norm_op = nn.InstanceNorm3d
+# norm_op_kwargs = {'eps': 1e-5, 'affine': True}
+# dropout_op_kwargs = {'p': 0, 'inplace': True}
+# net_nonlin = nn.LeakyReLU
+# net_nonlin_kwargs = {'negative_slope': 1e-2, 'inplace': True}
 ##############################
 
 model = Generic_UNet(num_input_channels, base_num_features, num_classes,
@@ -75,9 +99,10 @@ model = Generic_UNet(num_input_channels, base_num_features, num_classes,
                                     net_nonlin, net_nonlin_kwargs, False, False, lambda x: x, InitWeights_He(1e-2),
                                     net_num_pool_op_kernel_sizes, net_conv_kernel_sizes, False, True, True)
 
+#print(model)
 model.to(device)
 
-summary(model, (1,64,64,32), batch_size=-1)
+#summary(model, (1,64,64,32), batch_size=-1)
 criterion = nn.MSELoss()
 optimizer = torch.optim.SGD(model.parameters(), config.lr, momentum=0.9, weight_decay=0.0, nesterov=False)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=int(config.patience * 0.6), gamma=0.5) 
@@ -120,6 +145,17 @@ for epoch in range(intial_epoch,config.nb_epoch):
         pred=model(image)
         pred=torch.sigmoid(pred)
         loss = criterion(pred,gt)
+
+        # === Save ===
+        # if (iteration == 0):
+        #     np_image = image.cpu().numpy()
+        #     np_gt = gt.cpu().numpy()
+        #     np_pred = pred.cpu().detach().numpy()
+        #     np.save(os.path.join(save_path, 'mg_image_' + str(epoch)), np_image)
+        #     np.save(os.path.join(save_path, 'mg_gt_' + str(epoch)), np_gt)
+        #     np.save(os.path.join(save_path,'mg_pred_' + str(epoch)), np_pred)
+        # ============
+
         # Backprop and perform Adam optimisation
         optimizer.zero_grad()
         loss.backward()
@@ -159,9 +195,9 @@ for epoch in range(intial_epoch,config.nb_epoch):
         num_epoch_no_improvement = 0
         #save model
         torch.save({
-            'epoch':epoch + 1,
-            'state_dict' : model.state_dict(),
-            'optimizer_state_dict': optimizer.state_dict()
+           'epoch':epoch + 1,
+           'state_dict' : model.state_dict(),
+           'optimizer_state_dict': optimizer.state_dict()
         },os.path.join(model_path, config.exp_name+".model"))
         print("Saving model ",os.path.join(model_path, config.exp_name+".model"))
 

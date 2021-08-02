@@ -7,17 +7,17 @@ class models_genesis_config:
     exp_name = model + "-" + suffix
     
     # data
-    data = "/mnt/dataset/shared/zongwei/LUNA16/Self_Learning_Cubes"
+    data = "generated_cubes/Task105"
     train_fold=[0,1,2,3,4]
     valid_fold=[5,6]
     test_fold=[7,8,9]
-    hu_min = -1000.0
-    hu_max = 1000.0
+    hu_min = -250.0
+    hu_max = 250.0
     scale = 32
     input_rows = 64
     input_cols = 64 
     input_deps = 32
-    nb_class = 1
+    nb_class = 2
     
     # model pre-training
     verbose = 1
@@ -40,7 +40,7 @@ class models_genesis_config:
     flip_rate = 0.4
     
     # logs
-    model_path = "pretrained_weights"
+    model_path = "pretrained_weights/Task105"
     if not os.path.exists(model_path):
         os.makedirs(model_path)
     logs_path = os.path.join(model_path, "Logs")
