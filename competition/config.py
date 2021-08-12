@@ -2,7 +2,7 @@ import os
 import shutil
 
 class models_genesis_config:
-    DATA_DIR = "/home/sean/ModelsGenesis/generated_cubes/MV/resized32"
+    DATA_DIR = "/home/sean/ModelsGenesis/generated_cubes/Task107"
     nb_epoch = 1000
     patience = 5
     lr = 1e-1
@@ -18,7 +18,7 @@ class models_genesis_config:
                  data_augmentation=True,
                  input_rows=192,
                  input_cols=192,
-                 input_deps=48,
+                 input_deps=32,
                  batch_size= 2, #any higher GPU goes OOM
                  weights=None,
                  nb_class=2,
@@ -31,7 +31,7 @@ class models_genesis_config:
                  verbose=1,
                  scale=32,
                 ):
-        self.exp_name = "resized32"
+        self.exp_name = "Task107"
         self.data_augmentation = data_augmentation
         self.input_rows, self.input_cols = input_rows, input_cols
         self.input_deps = input_deps
