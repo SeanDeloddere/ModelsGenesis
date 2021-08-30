@@ -31,7 +31,7 @@ class models_genesis_config:
                  verbose=1,
                  scale=32,
                 ):
-        self.exp_name = "Task111_2"
+        self.exp_name = "Task111_ps2"
         self.data_augmentation = data_augmentation
         self.input_rows, self.input_cols = input_rows, input_cols
         self.input_deps = input_deps

@@ -86,9 +86,9 @@ def local_pixel_shuffling(x, index, prob=0.5):
     _, img_rows, img_cols, img_deps = x.shape
     num_block = 10000
     for _ in range(num_block):
-        block_noise_size_x = random.randint(1, img_rows//20)
-        block_noise_size_y = random.randint(1, img_cols//20)
-        block_noise_size_z = random.randint(1, img_deps//20)
+        block_noise_size_x = random.randint(1, img_rows//10)
+        block_noise_size_y = random.randint(1, img_cols//10)
+        block_noise_size_z = random.randint(1, img_deps//10)
         noise_x = random.randint(0, img_rows-block_noise_size_x)
         noise_y = random.randint(0, img_cols-block_noise_size_y)
         noise_z = random.randint(0, img_deps-block_noise_size_z)
