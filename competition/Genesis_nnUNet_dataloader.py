@@ -28,13 +28,13 @@ from optparse import OptionParser
 
 from torch.utils.data import Dataset, DataLoader
 
-save_path = '/home/sean/ModelsGenesis/pretext_results/end'
+save_path = '/home/sean/ModelsGenesis/pretext_results/test'
 
 print("torch = {}".format(torch.__version__))
 
-seed = 1
+seed = 3
 random.seed(seed)
-model_path = "pretrained_weights/Task107"
+model_path = "pretrained_weights/Task111"
 if not os.path.exists(model_path):
     os.makedirs(model_path)
 logs_path = os.path.join(model_path, "Logs")
@@ -51,7 +51,7 @@ print(device)
 
 class MVDataset(Dataset):
     def __init__(self, fold):
-        self.dataname = os.path.join(config.DATA_DIR, "bat_"+str(config.scale)+"_s_192x192x32_")
+        self.dataname = os.path.join(config.DATA_DIR, "bat_" + str(config.scale) + "_s_"+str(config.input_rows)+"x"+str(config.input_cols)+"x"+str(config.input_deps)+"_")
         self.fold = fold
         foldname = self.dataname + str(self.fold) + '.npy'
         print("loading in fold "+str(self.fold))
@@ -137,13 +137,13 @@ for epoch in range(intial_epoch,config.nb_epoch):
             loss = criterion(pred,gt)
 
             # === Save ===
-            # if (i == 0):
-            #     np_image = image.cpu().numpy()
-            #     np_gt = gt.cpu().numpy()
-            #     np_pred = pred.cpu().detach().numpy()
-            #     np.save(os.path.join(save_path, 'mg_image_' + str(epoch)), np_image)
-            #     np.save(os.path.join(save_path, 'mg_gt_' + str(epoch)), np_gt)
-            #     np.save(os.path.join(save_path,'mg_pred_' + str(epoch)), np_pred)
+            if (i == 0):
+                np_image = image.cpu().numpy()
+                np_gt = gt.cpu().numpy()
+                np_pred = pred.cpu().detach().numpy()
+                np.save(os.path.join(save_path, 'mg_image_' + str(epoch)), np_image)
+                np.save(os.path.join(save_path, 'mg_gt_' + str(epoch)), np_gt)
+                np.save(os.path.join(save_path,'mg_pred_' + str(epoch)), np_pred)
             # ============
 
             # Backprop and perform Adam optimisation

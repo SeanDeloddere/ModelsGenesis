@@ -2,8 +2,8 @@ from os import listdir, mkdir, makedirs
 from os.path import join, isdir, exists
 import numpy as np
 
-raw_folder = 'MV_raw/Task107'
-npy_folder = 'MV_npys/Task107'
+raw_folder = 'MV_raw/Task111'
+npy_folder = 'MV_npys/Task111'
 
 if not exists(npy_folder):
     makedirs(npy_folder)

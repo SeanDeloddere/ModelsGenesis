@@ -37,15 +37,15 @@ sys.setrecursionlimit(40000)
 parser = OptionParser()
 
 parser.add_option("--fold", dest="fold", help="fold of subset", default=None, type="int")
-parser.add_option("--input_rows", dest="input_rows", help="input rows", default=192, type="int") #was 64
-parser.add_option("--input_cols", dest="input_cols", help="input cols", default=192, type="int") #was 64
+parser.add_option("--input_rows", dest="input_rows", help="input rows", default=96, type="int") #was 64
+parser.add_option("--input_cols", dest="input_cols", help="input cols", default=96, type="int") #was 64
 parser.add_option("--input_deps", dest="input_deps", help="input deps", default=32, type="int") #was 32
 parser.add_option("--data", dest="data", help="the directory of LUNA16 dataset", default=None, type="string")
 parser.add_option("--save", dest="save", help="the directory of processed 3D cubes", default=None, type="string")
 parser.add_option("--scale", dest="scale", help="scale of the generator", default=32, type="int")
 (options, args) = parser.parse_args()
 fold = options.fold
-# fold = 0
+#fold = 0
 
 seed = 1
 random.seed(seed)
