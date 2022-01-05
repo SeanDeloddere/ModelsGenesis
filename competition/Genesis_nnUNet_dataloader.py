@@ -34,7 +34,7 @@ print("torch = {}".format(torch.__version__))
 
 seed = 3
 random.seed(seed)
-model_path = "pretrained_weights/Task111"
+model_path = "pretrained_weights/Task111/new"
 if not os.path.exists(model_path):
     os.makedirs(model_path)
 logs_path = os.path.join(model_path, "Logs")
@@ -71,8 +71,8 @@ class MVDataset(Dataset):
 num_input_channels=1
 base_num_features = 32
 num_classes = 7
-net_num_pool_op_kernel_sizes=[[1, 2, 2],[2, 2, 2],[2, 2, 2],[2, 2, 2],[1, 2, 2]]
-net_conv_kernel_sizes = [[1, 3, 3],[3, 3, 3],[3, 3, 3],[3, 3, 3],[3, 3, 3],[3, 3, 3]]
+net_num_pool_op_kernel_sizes=[[2, 2, 2],[2, 2, 2],[2, 2, 2],[2, 2, 2],[1, 2, 2]]
+net_conv_kernel_sizes = [[3, 3, 3],[3, 3, 3],[3, 3, 3],[3, 3, 3],[3, 3, 3],[3, 3, 3]]
 net_numpool=len(net_num_pool_op_kernel_sizes)
 conv_per_stage = 2
 conv_op = nn.Conv3d
@@ -91,7 +91,7 @@ model = Generic_UNet(num_input_channels, base_num_features, num_classes,
                                     net_nonlin, net_nonlin_kwargs, False, False, lambda x: x, InitWeights_He(1e-2),
                                     net_num_pool_op_kernel_sizes, net_conv_kernel_sizes, False, True, True)
 
-#print(model)
+print(model)
 model.to(device)
 
 criterion = nn.MSELoss()
@@ -137,13 +137,13 @@ for epoch in range(intial_epoch,config.nb_epoch):
             loss = criterion(pred,gt)
 
             # === Save ===
-            if (i == 0):
-                np_image = image.cpu().numpy()
-                np_gt = gt.cpu().numpy()
-                np_pred = pred.cpu().detach().numpy()
-                np.save(os.path.join(save_path, 'mg_image_' + str(epoch)), np_image)
-                np.save(os.path.join(save_path, 'mg_gt_' + str(epoch)), np_gt)
-                np.save(os.path.join(save_path,'mg_pred_' + str(epoch)), np_pred)
+            # if (i == 0):
+            #     np_image = image.cpu().numpy()
+            #     np_gt = gt.cpu().numpy()
+            #     np_pred = pred.cpu().detach().numpy()
+            #     np.save(os.path.join(save_path, config.exp_name + '_mg_image_' + str(epoch)), np_image)
+            #     np.save(os.path.join(save_path, config.exp_name + '_mg_gt_' + str(epoch)), np_gt)
+            #     np.save(os.path.join(save_path, config.exp_name + '_mg_pred_' + str(epoch)), np_pred)
             # ============
 
             # Backprop and perform Adam optimisation

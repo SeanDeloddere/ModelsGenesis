@@ -64,7 +64,7 @@ def nonlinear_transformation(x, prob=0.5):
     xpoints = [p[0] for p in points]
     ypoints = [p[1] for p in points]
     xvals, yvals = bezier_curve(points, nTimes=100000)
-    if random.random() < 0.5:
+    if random.random() < prob:
         # Half change to get flip
         xvals = np.sort(xvals)
     else:
@@ -168,6 +168,40 @@ def image_out_painting(x):
 
 def generate_pair(x, config, index):
     y = copy.deepcopy(x)
+    x = copy.deepcopy(x)
+
+    # ===========================================
+    save_path = '/home/sean/ModelsGenesis/pretext_results/augments/4'
+    # # ===========================================
+    # xnl = copy.deepcopy(x)
+    # xsh = copy.deepcopy(x)
+    # xop = copy.deepcopy(x)
+    # xip = copy.deepcopy(x)
+    #
+    # x = np.array([x])
+    # xnl = np.array([xnl])
+    # xsh = np.array([xsh])
+    # xop = np.array([xop])
+    # xip = np.array([xip])
+    #
+    #
+    #
+    #
+    #
+    # np.save(os.path.join(save_path, 'og'), x)
+    #
+    # xsh = local_pixel_shuffling(xsh, index, prob=1)
+    # np.save(os.path.join(save_path, 'sh'), xsh)
+    #
+    # xnl = nonlinear_transformation(xnl, 1)
+    # np.save(os.path.join(save_path, 'nl'), xnl)
+    #
+    # xip = image_in_painting(xip)
+    # np.save(os.path.join(save_path, 'ip'), xip)
+    #
+    # xop = image_out_painting(xop)
+    # np.save(os.path.join(save_path, 'op'), xop)
+    # #===========================================
 
     x = np.array([x])
     y = np.array([y])
@@ -189,4 +223,7 @@ def generate_pair(x, config, index):
         else:
             # Outpainting
             x = image_out_painting(x)
+
+    #np.save(os.path.join(save_path, 'full'), x)
+
     return x,y
